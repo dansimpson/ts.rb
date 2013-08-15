@@ -50,7 +50,7 @@ class TSTest < Test::Unit::TestCase
   def test_regression
     assert_in_delta 0.001, @ts.regression[:slope], 0.001
     assert_in_delta 1.0, @ts.regression[:r2], 0.01
-    assert_in_delta -1.5, @ts.regression[:y_intercept], 0.1
+    assert_in_delta 0.0, @ts.regression[:y_intercept], 0.1
   end
 
   def test_collect
@@ -60,6 +60,15 @@ class TSTest < Test::Unit::TestCase
   def test_sma
     assert_equal [2000, 2], @ts.data[1]
     assert_equal [2000, 1.5], @ts.sma(7).data[1]
+  end
+
+  def test_projection
+    assert_equal 5000, @ts.projected_value(5000000)
+  end
+
+  def test_projection_time
+    assert_equal 5000000, @ts.projected_time(5000)
+    assert_equal -1000, @ts.projected_time(-1)
   end
 
 end

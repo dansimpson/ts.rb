@@ -54,6 +54,15 @@ class TS
     }
   end
 
+  # generate some statistics from the values of the series
+  # returns {
+  #   :num => ...,
+  #   :min => ...,
+  #   :max => ...,
+  #   :sum => ...,
+  #   :mean => ...,
+  #   :stddev => ...,
+  # }
   def stats
     return @stats if @stats
 
@@ -65,8 +74,8 @@ class TS
     each { |time, val|
       min = val if val < min
       max = val if val > max
-      sum = sum + val
-      sum2 = sum2 + val ** 2
+      sum += val
+      sum2 += val ** 2
     }
 
     @stats = {
@@ -122,10 +131,14 @@ class TS
     TS.new(@data[0..idx-1])
   end
 
+  # fetch the value at a given index
+  # +idx+ the array index of the data
   def value_at idx
     @data[idx].last
   end
 
+  # fetch the time at a given index
+  # +idx+ the array index of the data
   def time_at idx
     @data[idx].first
   end
@@ -136,15 +149,24 @@ class TS
     bsearch time, 0, size - 1
   end
 
+  # get the timestamp series
   def timestamps
     @data.transpose.first
   end
 
+  # get the value series
   def values
     @data.transpose.last
   end
 
-  # Run a regression and calculate r, r2, the slope, and intercept
+  # Run a regression on the series.  Useful for weak projections
+  # and testing if your project is accurate (r2 =~ 1)
+  #
+  # returns {
+  #   :r2 => ...,
+  #   :slope => ...,
+  #   :y_intercept => ...
+  # }
   def regression
     return @regression if @regression
 
@@ -153,20 +175,38 @@ class TS
     t_mean = times.reduce(:+) / size
     v_mean = values.reduce(:+) / size
 
-    slope = (0..size - 1).inject(0) { |sum, n|
+    slope = (0..size - 1).inject(0.0) { |sum, n|
       sum + (times[n] - t_mean) * (values[n] - v_mean)
-    } / times.inject { |sum, n|
+    } / times.inject(0.0) { |sum, n|
       sum + (n - t_mean) ** 2
     }
 
-    # now r2
     r = slope * (stddev(times) / stddev(values))
 
     @regression = {
-      :r2 => r ** 2,
+      :r2 => r * r,
       :slope => slope,
       :y_intercept => v_mean - (slope * t_mean)
     }
+  end
+
+  # Project the value at a given time using the regresion
+  #
+  # y = mx + b
+  # 
+  # +time+ the timestamp of the value you wish to predict
+  def projected_value time
+    regression[:slope] * time + regression[:y_intercept]
+  end
+
+  # Estimate the time for a given value.  Assumes a fairly linear
+  # model.
+  #
+  # x = (y - b) / m
+  #
+  # +value+ the timestamp of the value you wish to predict
+  def projected_time value
+    (value - regression[:y_intercept]) / regression[:slope]
   end
 
   private
@@ -187,6 +227,7 @@ class TS
     end
   end
 
+  # calculate the std deviation of the 1d data set
   def stddev data
     sum  = 0.0
     sum2 = 0.0
@@ -194,7 +235,7 @@ class TS
       sum  += v
       sum2 += v ** 2
     }
-    Math.sqrt(sum2 / data.size - (sum / data.size) ** 2)
+    Math.sqrt((sum2 / data.size) - ((sum / data.size) ** 2))
   end
 
 end
