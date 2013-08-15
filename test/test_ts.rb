@@ -57,4 +57,9 @@ class TSTest < Test::Unit::TestCase
     assert @ts.map { |t, v| [t, v * 2] }.stats[:min] == 2
   end
 
+  def test_sma
+    assert_equal [2000, 2], @ts.data[1]
+    assert_equal [2000, 1.5], @ts.sma(7).data[1]
+  end
+
 end

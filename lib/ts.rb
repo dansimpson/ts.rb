@@ -6,7 +6,7 @@
 #
 class TS
 
-  Version = "1.0.0"
+  Version = "1.0.1"
 
   include Enumerable
 
@@ -34,6 +34,24 @@ class TS
   # map the [time,value] tuples into other [time,value] tuples
   def map
     TS.new(@data.map { |v| yield *v })
+  end
+
+  # run a simple moving average, and return a new TS instance
+  # +size+ the size of the window 
+  def sma size
+    buf = []
+    sum = 0
+
+    map { |t, v|
+      buf << v
+      sum += v
+
+      if buf.size > size
+        sum -= buf.shift
+      end
+
+      [t, sum / buf.size]
+    }
   end
 
   def stats
