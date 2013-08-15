@@ -6,7 +6,7 @@
 #
 class TS
 
-  Version = "1.0.1"
+  Version = "1.0.2"
 
   include Enumerable
 
@@ -86,6 +86,16 @@ class TS
       :mean => sum / size,
       :stddev => Math.sqrt((sum2 / size) - ((sum / size) ** 2))
     }
+  end
+
+  # get the mean value
+  def mean
+    stats[:mean]
+  end
+
+  # get the standard deviation of the values
+  def stddev
+    stats[:stddev]
   end
 
   # slice a timeseries by timestamps
@@ -181,7 +191,7 @@ class TS
       sum + (n - t_mean) ** 2
     }
 
-    r = slope * (stddev(times) / stddev(values))
+    r = slope * (_stddev(times) / _stddev(values))
 
     @regression = {
       :r2 => r * r,
@@ -228,7 +238,7 @@ class TS
   end
 
   # calculate the std deviation of the 1d data set
-  def stddev data
+  def _stddev data
     sum  = 0.0
     sum2 = 0.0
     data.each { |v|

@@ -25,6 +25,9 @@ class TSTest < Test::Unit::TestCase
     assert_equal (1000 * (1000 + 1)) / 2, @ts.stats[:sum]
     assert_in_delta 288, @ts.stats[:stddev], 1.0
     assert_in_delta 500, @ts.stats[:mean], 1.0
+
+    assert_in_delta 288, @ts.stddev, 1.0
+    assert_in_delta 500, @ts.mean, 1.0
   end
 
   def test_slice
