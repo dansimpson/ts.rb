@@ -4,6 +4,7 @@ require "ts"
 spec = Gem::Specification.new do |s|
   s.name = "ts"
   s.version = TS::Version
+  s.license = "MIT"
   s.date = "2013-08-14"
   s.summary = "Utility gem for numeric time series data"
   s.email = "dan.simpson@gmail.com"
