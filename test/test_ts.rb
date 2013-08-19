@@ -36,10 +36,14 @@ class TSTest < Test::Unit::TestCase
 
   def test_after
     assert_equal 999, @ts.after(1000).size
+    assert_equal 1000, @ts.after(-1).size
+    assert_equal 0, @ts.after(1000 * 1000 + 1).size
   end
 
   def test_before
     assert_equal 1, @ts.before(2000).size
+    assert_equal 1000, @ts.before(1000 * 1000 + 1).size
+    assert_equal 0, @ts.before(0).size
   end
 
   def test_timestamps

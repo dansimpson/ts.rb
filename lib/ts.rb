@@ -6,7 +6,7 @@
 #
 class TS
 
-  Version = "1.0.2"
+  Version = "1.0.3"
 
   include Enumerable
 
@@ -134,10 +134,10 @@ class TS
   # +time+ the time boundary
   def before time
     idx = nearest(time)
+    return TS.new([]) if idx <= 0
     if time_at(idx) < time
       idx += 1
     end
-
     TS.new(@data[0..idx-1])
   end
 
